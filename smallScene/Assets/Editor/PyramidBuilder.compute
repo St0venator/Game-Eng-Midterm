@@ -1,0 +1,37 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel Main
+
+struct sourceVertex{
+    float3 positionOS;
+    float2 uv;
+}
+
+StructuredBuffer<sourceVertex> _sourceVertices;
+StructuredBuffer<int> _sourceIndices;
+
+struct generatedVertex{
+    float3 positionOS;
+    float2 uv;
+    float3 normalOS;
+}
+
+RWStructuredBuffer<generatedVertex> _generatedVertices;
+RWStructuredBuffer<int> _generatedIndices;
+
+int _numSourceTriangles;
+float _pyramidHeight;
+float4x4 _transform;
+
+[numthreads(128,1,1)]
+void Main(uint3 id : SV_DispatchThreadID){
+
+    if((int)id.x > _numSourceTriangles){
+        return;
+    }
+
+    int triStart = id.x * 3;
+    sourceVertex a = Transform(_sourceVertices[_sourceIndices[triStart]]);
+    sourceVertex b = Transform(_sourceVertices[_sourceIndices[triStart + 1]]);
+    sourceVertex c = Transform(_sourceVertices[_sourceIndices[triStart + 2]]);
+
+}
